@@ -14,22 +14,21 @@ public class Player_Movement : MonoBehaviour
         else if (Input.GetMouseButtonUp(0))
             UnGrab();
 
-        Debug.DrawRay(transform.position, transform.up);
-        transform.position += transform.up * speed * Time.deltaTime * Input.GetAxis("Vertical");
+        transform.position += Vector3.up * speed * Time.deltaTime * Input.GetAxis("Vertical");
+        transform.position += Vector3.right * speed * Time.deltaTime * Input.GetAxis("Horizontal");
 
-        transform.position += transform.right * speed * Time.deltaTime * Input.GetAxis("Horizontal");
-
-        //Vector3 movement = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0f);
-        //transform.position += movement * Time.deltaTime * speed;
-
-        if (isGrabbing)
-            return;
+        
 
         Vector3 diff = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
         diff.Normalize();
 
+        float rSpeed = Time.deltaTime * 300;
+
+        if (isGrabbing)
+            rSpeed /= 2;
+
         float rot_z = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, rot_z - 90);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(0f, 0f, rot_z - 90), rSpeed);
     }
 
     void Grab()
@@ -39,7 +38,7 @@ public class Player_Movement : MonoBehaviour
 
         for (int i = 0; i < hit.Length; i++)
         {
-            if (hit[i].collider.CompareTag("Box"))
+            if (hit[i].collider.CompareTag("Number"))
             {
                 isGrabbing = true;
                 hit[i].collider.transform.SetParent(transform);
